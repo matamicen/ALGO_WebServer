@@ -55,13 +55,12 @@ const test = async() => {
     try {
 
 
-      let oracleTemplate = `
-#pragma version 3
+let oracleTemplate = `#pragma version 5
 txn TypeEnum
 int pay
 ==
 global GroupSize
-int 3
+int 4
 ==
 &&
 txn Receiver
@@ -91,7 +90,6 @@ int <lastvalid>
 &&
 return
 `;
-
         const algodToken = '';
         const algodServer = "https://api.testnet.algoexplorer.io";
         const algodPort = '';
