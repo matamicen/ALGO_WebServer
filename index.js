@@ -24,7 +24,7 @@ const test = async() => {
         const receiver = "HZ57J3K46JIJXILONBBZOHX6BKPXEM2VVXNRFSUED6DKFD5ZD24PMJ3MVA";
         let accountInfo = await algodClient.accountInformation(receiver).do();
         
-        console.log("Account balance: %d microAlgos", accountInfo.amount);
+        // console.log("Account balance: %d microAlgos", accountInfo.amount);
     } catch (err) {
       console.error(err);
     }
@@ -100,35 +100,37 @@ return
             throw new Error("Unable to get node status");
         }
         // obtengo last round + 10
-        console.log('lastRound: '+status["last-round"])  
+        // console.log('lastRound: '+status["last-round"])  
         lastvalid = status["last-round"] + 10
 
         // armo el logicsig del oracle
 
-        oracleTemplate = oracleTemplate.replace("<exchange_rate>", parseInt("00025000"));    
+        tipocambio = "25000"
+        oracleTemplate = oracleTemplate.replace("<exchange_rate>", parseInt(tipocambio));    
         let program = oracleTemplate.replace("<lastvalid>", lastvalid); 
-        console.log(program)
+        // console.log(program)
         compilation = await compileProgram(algodClient, program);
         //generate unique filename
         // let uintAr = _base64ToArrayBuffer(compilation.result);
-        console.log(compilation.result)
+        // console.log(compilation.result)
         oracleProgramReferenceProgramBytesReplace = Buffer.from(compilation.result, "base64");
-        console.log(oracleProgramReferenceProgramBytesReplace)
+        // console.log(oracleProgramReferenceProgramBytesReplace)
         program_array = new Uint8Array (oracleProgramReferenceProgramBytesReplace);
         args = null;
         // let lsig = algosdk.makeLogicSig(program_array, args);
         oracle_lsig = new algosdk.LogicSigAccount(program_array, args);
-        console.log('Oracle_logicsic_account: '+oracle_lsig.address())
+        // console.log('Oracle_logicsic_account: '+oracle_lsig.address())
 
         let oracle_sk = algosdk.mnemonicToSecretKey("popular sauce pride off fluid you come coffee display list stadium blood scout bargain segment laptop hand employ demise grass sign adult want abstract exhibit")
-        console.log("oracle Address:" +oracle_sk.addr.toString())
-        console.log(oracle_lsig)
+        // console.log("CT Oracle signed Address:" +oracle_sk.addr.toString())
+        console.log("Tipo de cambio que envia Oracle: "+tipocambio)
+        // console.log(oracle_lsig)
         oracle_lsig.sign(oracle_sk.sk);
-        console.log(oracle_lsig)
-        console.log('oracle_sk.sk')
-        console.log(oracle_sk)
-        console.log(oracle_sk.sk)
-        console.log('Oracle_logicsic_account: '+oracle_lsig.address())
+        // console.log(oracle_lsig)
+        // console.log('oracle_sk.sk')
+        // console.log(oracle_sk)
+        // console.log(oracle_sk.sk)
+        // console.log('Oracle_logicsic_account: '+oracle_lsig.address())
         // pepe = oracle_lsig.get_obj_for_encoding()
         // console.log(pepe)
         // const aux = Buffer.from(algosdk.encodeObj(oracle_lsig)).toString("base64");
@@ -138,8 +140,8 @@ return
         // console.log(encoded1)
 
 
-
-        return encoded1
+        // return encoded1;
+        return {'signedOracle': encoded1, 'tipocambio': tipocambio}
         // + encoded1
         // const signed = decodeObj(new Uint8Array(Buffer.from(signedTxn, "base64")));
         //  await algodClient.sendRawTransaction(signed.blob).do();
@@ -180,16 +182,17 @@ app.post('/oracle', async function(req, res) {
   console.log('llama oracle!' )
   
     envioSignedTx = await oracleTx()
-    res.json({signedOracle: envioSignedTx})  
+    // res.json({signedOracle: envioSignedTx})  
+    res.json(envioSignedTx)
   })
 
-app.del('/', function(req, res) {
+app.delete('/', function(req, res) {
   res.json({ mensaje: 'Método delete' })  
 })
 
 // iniciamos nuestro servidor
 app.listen(port)
-console.log('API escuchando en el puerto ' + port)
+console.log('CT Oracle escuchando en el puerto ' + port)
 
 }
 
